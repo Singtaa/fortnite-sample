@@ -42,7 +42,7 @@ const ActionBar = () => {
     }
 
     return (
-        <div class="w-[520px] h-[120px] absolute bottom-20 right-2.5 flex flex-row justify-between">
+        <div class="w-[520px] h-[120px] absolute bottom-20 right-4 flex flex-row justify-between">
             <Slot itemName="daggers" rarity={Rarity.Epic} char="F" selected={slotIndex == 0} />
             <Slot itemName="mk7" rarity={Rarity.Legendary} char="1" selected={slotIndex == 1} />
             <Slot itemName="drum" char="2" selected={slotIndex == 2} />
