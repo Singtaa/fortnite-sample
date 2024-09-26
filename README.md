@@ -8,6 +8,7 @@ This sample code is meant for [OneJS](https://onejs.com) users.
 
 * `npm install fortnite-sample`
 * Setup `SampleCharacter` in scene
+* Add `tailwind` stylesheet to ScriptEngine
 * Test the `<FortniteSample />` preact comp like below:
 
 ```tsx
