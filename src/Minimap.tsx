@@ -1,57 +1,57 @@
-import { h } from "preact"
-import { useEffect, useRef } from "preact/hooks"
-import { Easing, Tween } from "@tweenjs/tween.js"
-import { Length, Translate } from "UnityEngine/UIElements"
+import { useEffect, useState } from "react"
+import { Text, View } from "onejs-react"
+import { art } from "./assets"
+import { Icon } from "./parts"
 
-let tween = undefined
-
-var mapTex = resource.loadImage("assets/@fortnite-sample/map.jpg")
-
-function animate(time) {
-    if (tween)
-        tween.update(time)
-    requestAnimationFrame(animate)
+export interface MinimapProps {
+    /** Seconds left on the storm timer. */
+    storm: number
+    players: number
+    eliminations: number
 }
-requestAnimationFrame(animate)
 
-const Minimap = () => {
-    const mapRef = useRef<Element>();
-    const hourGlassRef = useRef<Element>();
+/**
+ * The map and the match counters, top right. The map pans back and forth on a
+ * ten second USS transition, so it costs no script per frame; the storm icon
+ * flashes red on every other second of the timer.
+ */
+export function Minimap({ storm, players, eliminations }: MinimapProps) {
+    const [laidOut, setLaidOut] = useState(false)
+    const [far, setFar] = useState(false)
 
-    let hourGlassBool = false
-
+    // Starts once the map has been laid out. UI Toolkit animates only from a
+    // style it has already applied, so a class added before the first layout
+    // lands at once; a fixed delay guessed at when that is, and lost.
     useEffect(() => {
-        let pos = { x: 0, y: 0 }
-        tween = new Tween(pos).to({ x: pos.x + 600, y: pos.y + 600 }, 10000)
-            .easing(Easing.Quadratic.InOut).onUpdate(() => {
-                // mapRef.current.style.translate = `${pos.x}px ${pos.y}px`
-                mapRef.current.style.translate = new Translate(new Length(pos.x), new Length(pos.y))
-            }).repeat(Infinity).yoyo(true).start()
-
-        function pulseHourGlass() {
-            hourGlassRef.current.style.color = hourGlassBool ? "white" : "red"
-            hourGlassBool = !hourGlassBool
-            setTimeout(pulseHourGlass, 1000);
-        }
-        pulseHourGlass()
-    }, [])
+        if (!laidOut) return
+        setFar(true)
+        const id = setInterval(() => setFar((f) => !f), 10000)
+        return () => clearInterval(id)
+    }, [laidOut])
 
     return (
-        <div class="w-[300px] h-[400px] absolute top-4 right-4 flex flex-col">
-            <div class="relative w-[300px] h-[300px] bg-beige overflow-hidden">
-                <div ref={mapRef} class="absolute -top-[850px] -left-[850px] w-[1400px] h-[1400px]" style={{ backgroundImage: mapTex }}></div>
-                <div class="absolute top-[140px] left-[140px] text-white text-xl rpgawesome">&#xEAC5;</div>
-            </div>
-            <div class="flex flex-row mt-2 items-center justify-center">
-                <div ref={hourGlassRef} class="text-base text-white w-[26px] h-[26px] bg-black/30 rounded-full flex items-center justify-center duration-1000 transition-colors ease-in-out rpgawesome">&#xEA09;</div>
-                <div class="text-lg text-white font-bold pl-1.5 pr-3">0:36</div>
-                <div class="text-base text-white w-[26px] h-[26px] bg-black/30 rounded-full flex items-center justify-center rpgawesome">&#xEA48;</div>
-                <div class="text-lg text-white font-bold pl-1.5 pr-3">25</div>
-                <div class="text-base text-white w-[26px] h-[26px] bg-black/30 rounded-full flex items-center justify-center rpgawesome">&#xEAA1;</div>
-                <div class="text-lg text-white font-bold pl-1.5 pr-3">7</div>
-            </div>
-        </div>
+        <View className="fns-minimap">
+            <View className="fns-map-frame">
+                <View
+                    className={far ? "fns-map fns-map--far" : "fns-map"}
+                    style={{ backgroundImage: art("map.jpg") }}
+                    onGeometryChanged={() => setLaidOut(true)}
+                />
+                <Icon className="fns-map-marker" glyph={0xEAC5} />
+            </View>
+            <View className="fns-match">
+                <Icon className={storm % 2 === 1 ? "fns-match-icon fns-match-icon--storm fns-match-icon--pulse" : "fns-match-icon fns-match-icon--storm"} glyph={0xEA09} />
+                <Text className="fns-text fns-match-value" text={clock(storm)} />
+                <Icon className="fns-match-icon" glyph={0xEA48} />
+                <Text className="fns-text fns-match-value" text={String(players)} />
+                <Icon className="fns-match-icon" glyph={0xEAA1} />
+                <Text className="fns-text fns-match-value" text={String(eliminations)} />
+            </View>
+        </View>
     )
 }
 
-export default Minimap
+function clock(seconds: number): string {
+    const s = Math.max(0, Math.floor(seconds))
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`
+}

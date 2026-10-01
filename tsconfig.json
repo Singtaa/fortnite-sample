@@ -1,27 +1,20 @@
 {
     "compilerOptions": {
-        "baseUrl": ".",
+        "target": "ES2022",
+        "lib": ["ES2022"],
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "noEmit": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
+        "resolveJsonModule": true,
+        "jsx": "react-jsx",
         "paths": {
-            "onejs": [ "node_modules/onejs-core" ],
-            "onejs/*": [ "node_modules/onejs-core/*" ],
-            "preact": [ "node_modules/onejs-preact", "node_modules/preact" ],
-            "preact/*": [ "node_modules/onejs-preact/*", "node_modules/preact/*" ]
+            "onejs-react": ["./node_modules/onejs-react/src"]
         },
-        "target": "esnext",
-        "module": "esnext",
-        "lib": [ "esnext" ],
-        "outDir": "./dist",
-        "rootDir": "./src",
-        "moduleResolution": "node",
-        "jsx": "react",
-        "jsxFactory": "h",
-        "jsxFragmentFactory": "Fragment",
-        "skipLibCheck": false,
-        "forceConsistentCasingInFileNames": true,
-        "declaration": true,
-        "types": [ "onejs-core" ]
+        "types": ["unity-types", "react"]
     },
-    "include": [
-        "src/**/*"
-    ]
+    "include": ["src", "dev"]
 }

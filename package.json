@@ -1,18 +1,33 @@
 {
     "name": "fortnite-sample",
-    "description": "Fortnite UI Sample for OneJS",
-    "version": "0.3.20",
+    "description": "A Fortnite style HUD for OneJS: React, UI Toolkit, no C#",
+    "version": "1.0.0",
+    "license": "MIT",
     "repository": "github:Singtaa/fortnite-sample",
-    "main": "dist/index.js",
-    "dependencies": {
-        "@tweenjs/tween.js": "^25.0.0",
-        "onejs-core": "^0.3.13",
-        "onejs-preact": "^0.3.12"
+    "keywords": ["onejs", "unity", "ui-toolkit", "react", "hud", "sample"],
+    "type": "module",
+    "exports": {
+        ".": "./src/index.tsx"
     },
-    "onejs": {
-        "assets-path": "resources"
+    "files": [
+        "src",
+        "assets",
+        "Attributions.md"
+    ],
+    "peerDependencies": {
+        "onejs-react": ">=0.2.2",
+        "onejs-unity": ">=0.9.1",
+        "react": "^19.0.0"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit"
     },
     "devDependencies": {
-        "tailwindcss": "^3.4.7"
+        "@types/react": "^19.0.0",
+        "onejs-react": "^0.2.2",
+        "onejs-unity": "^0.9.1",
+        "react": "^19.0.0",
+        "typescript": "^7.0.0",
+        "unity-types": "^6000.3.0"
     }
 }

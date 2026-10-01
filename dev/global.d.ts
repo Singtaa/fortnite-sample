@@ -1,0 +1,218 @@
+// The globals a OneJS app declares (the 3.9.2 template's types/global.d.ts), so this
+// package typechecks on its own. Not shipped: the app that installs it has its own.
+// OneJS runtime globals (provided by QuickJSBootstrap.js)
+// Note: CS.* types and ES6 module declarations are provided by unity-types package
+
+// Virtual modules resolved by onejs-unity esbuild plugins (no runtime export).
+declare module "onejs:tailwind";
+
+// Plain .uss imports resolve to the file contents as a string (esbuild "text" loader).
+// Pass to compileStyleSheet() to embed global styles in the bundle so they work in builds.
+// (.module.uss imports are typed by their auto-generated sibling .d.ts files instead.)
+declare module "*.uss" {
+    const content: string;
+    export default content;
+}
+
+// Root UI element
+declare const __root: CS.UnityEngine.UIElements.VisualElement;
+
+// True when running in Play mode, false during edit-mode preview
+declare const __isPlaying: boolean;
+
+// Event API for UI Toolkit elements
+declare const __eventAPI: {
+    addEventListener: (element: CS.UnityEngine.UIElements.VisualElement, eventType: string, callback: Function) => void;
+    removeEventListener: (element: CS.UnityEngine.UIElements.VisualElement, eventType: string, callback: Function) => void;
+    removeAllEventListeners: (element: CS.UnityEngine.UIElements.VisualElement) => void;
+};
+
+// Get System.Type from a Unity/C# class constructor
+// Usage: go.AddComponent($typeof(MeshFilter))
+// Note: With improved interop, you can often pass types directly: go.AddComponent(MeshFilter)
+declare function $typeof<T>(type: { new(...args: any[]): T } | T): CS.System.Type;
+
+// Extend GameObject.AddComponent to accept constructor types directly
+declare namespace CS.UnityEngine {
+    interface GameObject {
+        AddComponent<T extends CS.UnityEngine.Component>(type: { new(...args: any[]): T }): T;
+    }
+}
+
+// All C# objects wrapped by OneJS have these handle properties at runtime
+// This allows VisualElement to be passed to render() without type errors
+declare namespace CS.UnityEngine.UIElements {
+    interface VisualElement {
+        __csHandle: number;
+        __csType: string;
+    }
+}
+
+// C# object helpers
+declare const __csHelpers: {
+    newObject: (typeName: string, ...args: unknown[]) => unknown;
+    callMethod: (obj: unknown, methodName: string, ...args: unknown[]) => unknown;
+    callStatic: (typeName: string, methodName: string, ...args: unknown[]) => unknown;
+    wrapObject: (typeName: string, handle: number) => unknown;
+    releaseObject: (obj: unknown) => void;
+};
+
+// Console (provided by QuickJS)
+declare const console: {
+    log: (...args: unknown[]) => void;
+    info: (...args: unknown[]) => void;
+    debug: (...args: unknown[]) => void;
+    warn: (...args: unknown[]) => void;
+    error: (...args: unknown[]) => void;
+};
+
+// Timers (provided by QuickJSBootstrap.js)
+declare function setTimeout(callback: () => void, ms?: number): number;
+declare function clearTimeout(id: number): void;
+declare function setInterval(callback: () => void, ms?: number): number;
+declare function clearInterval(id: number): void;
+declare function requestAnimationFrame(callback: (timestamp: number) => void): number;
+declare function cancelAnimationFrame(id: number): void;
+declare function queueMicrotask(callback: () => void): void;
+
+declare const performance: {
+    now: () => number;
+};
+
+// StyleSheet API
+/**
+ * Reads a USS file at runtime, relative to `~/` in the Editor and to
+ * `__persistentDataPath` in a build, where `~/` is not shipped. Styles the game
+ * ships belong in the bundle: import the .uss file and pass it to compileStyleSheet().
+ */
+declare function loadStyleSheet(path: string): boolean;
+declare function compileStyleSheet(ussContent: string, name?: string): boolean;
+declare function removeStyleSheet(name: string): boolean;
+declare function clearStyleSheets(): number;
+
+// FileSystem API: Path globals
+/** Application.persistentDataPath - User-writable storage that persists across sessions */
+declare const __persistentDataPath: string;
+/** Application.streamingAssetsPath - Read-only assets bundled with the app */
+declare const __streamingAssetsPath: string;
+/** Application.dataPath - Path to game data folder (Editor: Assets, Build: Data) */
+declare const __dataPath: string;
+/** Application.temporaryCachePath - Temporary cache directory */
+declare const __temporaryCachePath: string;
+
+// FileSystem API: Functions
+/**
+ * Read a text file from an absolute path.
+ * Works in Editor and standalone builds.
+ * @param path: Absolute path to the file
+ * @returns File contents
+ * @throws If file doesn't exist or cannot be read
+ * @example
+ * const uss = await readTextFile(`${__persistentDataPath}/themes/dark.uss`);
+ * compileStyleSheet(uss, "user-theme");
+ */
+declare function readTextFile(path: string): Promise<string>;
+
+/**
+ * Write text to a file at an absolute path.
+ * Creates the file if it doesn't exist, overwrites if it does.
+ * Automatically creates parent directories.
+ * @param path: Absolute path to the file
+ * @param content: Content to write
+ * @example
+ * await writeTextFile(`${__persistentDataPath}/prefs.json`, JSON.stringify(prefs));
+ */
+declare function writeTextFile(path: string, content: string): Promise<void>;
+
+/**
+ * Check if a file exists at the given path.
+ * @param path: Absolute path to check
+ * @returns True if file exists
+ */
+declare function fileExists(path: string): boolean;
+
+/**
+ * Check if a directory exists at the given path.
+ * @param path: Absolute path to check
+ * @returns True if directory exists
+ */
+declare function directoryExists(path: string): boolean;
+
+/**
+ * Delete a file at the given path.
+ * @param path: Absolute path to the file
+ * @returns True if file was deleted, false if it didn't exist
+ */
+declare function deleteFile(path: string): boolean;
+
+/**
+ * List files in a directory matching an optional pattern.
+ * @param path: Directory path
+ * @param pattern: Search pattern (e.g., "*.uss", "*.json"). Default is "*"
+ * @param recursive: Search subdirectories. Default is false
+ * @returns Array of file paths
+ */
+declare function listFiles(path: string, pattern?: string, recursive?: boolean): string[];
+
+// WebSocket API
+interface WebSocketEvent {
+    readonly type: string;
+    readonly target: WebSocket;
+    readonly currentTarget: WebSocket;
+}
+
+interface WebSocketMessageEvent extends WebSocketEvent {
+    readonly data: string | ArrayBuffer;
+}
+
+interface WebSocketCloseEvent extends WebSocketEvent {
+    readonly code: number;
+    readonly reason: string;
+    readonly wasClean: boolean;
+}
+
+declare class WebSocket {
+    static readonly CONNECTING: 0;
+    static readonly OPEN: 1;
+    static readonly CLOSING: 2;
+    static readonly CLOSED: 3;
+
+    readonly CONNECTING: 0;
+    readonly OPEN: 1;
+    readonly CLOSING: 2;
+    readonly CLOSED: 3;
+
+    constructor(url: string, protocols?: string | string[]);
+
+    readonly url: string;
+    readonly readyState: number;
+    readonly protocol: string;
+    readonly extensions: string;
+    readonly bufferedAmount: number;
+    binaryType: "arraybuffer";
+
+    onopen: ((event: WebSocketEvent) => void) | null;
+    onmessage: ((event: WebSocketMessageEvent) => void) | null;
+    onerror: ((event: WebSocketEvent) => void) | null;
+    onclose: ((event: WebSocketCloseEvent) => void) | null;
+
+    send(data: string | ArrayBuffer | ArrayBufferView): void;
+    close(code?: number, reason?: string): void;
+    addEventListener(type: string, listener: (event: any) => void): void;
+    removeEventListener(type: string, listener: (event: any) => void): void;
+    dispatchEvent(event: { type: string; [key: string]: any }): boolean;
+}
+
+// Async Asset Loading API
+/**
+ * Load a Unity resource asynchronously from the Resources folder.
+ * Returns null if the resource is not found.
+ * @param path: Resource path (relative to Resources folder, no extension)
+ * @param type: Optional C# Type to load as (e.g., CS.UnityEngine.TextAsset)
+ * @returns The loaded asset, or null if not found
+ * @example
+ * const tex = await loadResourceAsync("MyTextures/hero", CS.UnityEngine.Texture2D);
+ * @example
+ * const asset = await loadResourceAsync("Prefabs/Player");
+ */
+declare function loadResourceAsync(path: string, type?: any): Promise<any>;

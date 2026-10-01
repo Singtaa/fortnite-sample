@@ -1,56 +1,60 @@
-import { h } from "preact"
-import { useEffect, useEventfulState, useState } from "preact/hooks"
+import { Text, View } from "onejs-react"
+import { art } from "./assets"
 
-enum Rarity {
-    Common,
-    Uncommon,
-    Rare,
-    Epic,
-    Legendary
+export const Rarity = { Common: 0, Uncommon: 1, Rare: 2, Epic: 3, Legendary: 4 } as const
+export type Rarity = typeof Rarity[keyof typeof Rarity]
+
+const RARITY_COLORS = ["#A3A9AF", "#57B001", "#00A2EA", "#A24DC6", "#FEA741"]
+
+export interface ActionBarItem {
+    /** A file in the sample's art folder, or any texture of your own. */
+    image: string | CS.UnityEngine.Texture2D
+    rarity?: Rarity
 }
 
-const RarityColors = ["#A3A9AF", "#57B001", "#00A2EA", "#A24DC6", "#FEA741"]
+/** The four items v2 showed, then two empty slots. */
+export const DEFAULT_ITEMS: (ActionBarItem | null)[] = [
+    { image: "daggers.png", rarity: Rarity.Epic },
+    { image: "mk7.png", rarity: Rarity.Legendary },
+    { image: "drum.png" },
+    { image: "splash.png", rarity: Rarity.Rare },
+    null,
+    null,
+]
 
-const Slot = ({ itemName, rarity, char, selected }: { itemName?: string, rarity?: Rarity, char?: string, selected?: boolean }) => {
-    rarity = rarity ?? Rarity.Common
-    let rarityColor = RarityColors[rarity]
+const KEYS = ["F", "1", "2", "3", "4", "5"]
+
+export interface ActionBarProps {
+    /** Which slot is raised. */
+    slot: number
+    items?: (ActionBarItem | null)[]
+}
+
+/** The inventory slots, bottom right. */
+export function ActionBar({ slot, items = DEFAULT_ITEMS }: ActionBarProps) {
     return (
-        <div class="w-20 h-30 flex flex-col justify-end items-center">
-            {itemName ? (
-                <div class={`w-20 h-20 ${selected ? 'mb-3' : 'mb-0'} transition-all duration-400 ease-in-out`} style={{ backgroundColor: rarityColor }}>
-                    <div class="w-full h-full bg-cover bg-center" style={{ backgroundImage: `assets/@fortnite-sample/${itemName}.png` }}>
-                        <div class={`w-full h-full bg-cover bg-center ${selected ? 'border-2 border-white' : ''}`}></div>
-                    </div>
-                </div>
-            ) : (
-                <div class="w-20 h-20 border border-white border-opacity-50"></div>
-            )}
-            <div class="mt-1.5 text-xs font-bold text-white shadow-text bg-black bg-black/50 border border-white border-opacity-30 px-1.5 py-0.5">
-                {char || "X"}
-            </div>
-        </div>
+        <View className="fns-bar">
+            {KEYS.map((key, i) => <Slot key={key} label={key} item={items[i] ?? null} selected={slot === i} />)}
+        </View>
     )
 }
 
-declare const sam: CS.OneJS.Samples.SampleCharacter
-
-const ActionBar = () => {
-    const [slotIndex, setSlotIndex] = useEventfulState(sam, "SlotIndex")
-
-    function onSlotIndexChanged(i: number): void {
-        setSlotIndex(i)
-    }
-
+function Slot({ label, item, selected }: { label: string, item: ActionBarItem | null, selected: boolean }) {
     return (
-        <div class="w-[520px] h-[120px] absolute bottom-20 right-4 flex flex-row justify-between">
-            <Slot itemName="daggers" rarity={Rarity.Epic} char="F" selected={slotIndex == 0} />
-            <Slot itemName="mk7" rarity={Rarity.Legendary} char="1" selected={slotIndex == 1} />
-            <Slot itemName="drum" char="2" selected={slotIndex == 2} />
-            <Slot itemName="splash" rarity={Rarity.Rare} char="3" selected={slotIndex == 3} />
-            <Slot char="4" />
-            <Slot char="5" />
-        </div>
+        <View className="fns-slot">
+            {item
+                ? (
+                    <View
+                        className={selected ? "fns-slot-item fns-slot-item--selected" : "fns-slot-item"}
+                        style={{ backgroundColor: RARITY_COLORS[item.rarity ?? Rarity.Common] }}
+                    >
+                        <View className="fns-slot-art" style={{ backgroundImage: typeof item.image === "string" ? art(item.image) : item.image }}>
+                            <View className="fns-slot-frame" />
+                        </View>
+                    </View>
+                )
+                : <View className="fns-slot-empty" />}
+            <Text className="fns-text fns-slot-key" text={label} />
+        </View>
     )
 }
-
-export default ActionBar

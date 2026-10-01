@@ -1,42 +1,45 @@
-import { parseColor } from "onejs/utils/color-parser"
-import { h } from "preact"
-import { useEffect, useEventfulState, useState } from "preact/hooks"
+import { Text, View } from "onejs-react"
+import { Gradient, Icon } from "./parts"
 
-declare const sam: CS.OneJS.Samples.SampleCharacter
+export interface CharacterStatsProps {
+    health: number
+    shield: number
+    armor: number
+}
 
-sam.Health = 100
-sam.MaxHealth = 100
-
-const CharacterStats = () => {
-    const [health, setHealth] = useEventfulState(sam, "Health")
-
+/** Shield and health bars, bottom left. */
+export function CharacterStats({ health, shield, armor }: CharacterStatsProps) {
     return (
-        <div class="w-[580px] h-20 rounded-md absolute bottom-20 left-20 bg-black bg-black/40 p-2.5 flex flex-row">
-            <div class="flex-grow flex-shrink">
-                <div class="flex h-[30%] flex-row justify-between items-center">
-                    <div class="text-white text-xl h-full flex items-center justify-center w-10 rpgawesome">&#xEAE0;</div>
-                    <div class="bg-black/40 w-[356px] h-full">
-                        <gradientrect colors={[parseColor("#007CCC"), parseColor("#00A0E6")]} class="w-1/2 h-full" />
-                    </div>
-                    <div class="text-white text-xl font-bold h-full flex items-center justify-center w-[50px]">50</div>
-                </div>
-                <div class="h-[10%]"></div>
-                <div class="flex h-[60%] flex-row justify-between items-center">
-                    <div class="text-white text-xl h-full flex items-center justify-center w-10 rpgawesome">&#xE9F5;</div>
-                    <div class="bg-black/40 w-[356px] h-full">
-                        <div class={`h-full overflow-hidden transition-[width] duration-500 ease-in-out`} style={{ width: `${health}%` }}>
-                            <gradientrect colors={[parseColor("#02BC23"), parseColor("#48E025")]} class="w-[356px] h-full" />
-                        </div>
-                    </div>
-                    <div class="text-white text-xl font-bold h-full flex items-center justify-center w-[50px]">{health | 0}</div>
-                </div>
-            </div>
-            <div class="w-1/5 h-full flex flex-row justify-around items-center">
-                <div class="text-[#89FFFF] text-[60px] h-full rpgawesome">&#xE9C1;</div>
-                <div class="text-white text-3xl font-bold">50</div>
-            </div>
-        </div>
+        <View className="fns-stats">
+            <View className="fns-stats-bars">
+                <View className="fns-stats-row" style={{ height: "30%" }}>
+                    <Icon className="fns-stats-icon" glyph={0xEAE0} />
+                    <View className="fns-stats-track">
+                        <View className="fns-stats-fill" style={{ width: `${clamp(shield)}%` }}>
+                            <Gradient from="#007CCC" to="#00A0E6" width={356} />
+                        </View>
+                    </View>
+                    <Text className="fns-text fns-stats-value" text={String(Math.round(shield))} />
+                </View>
+                <View style={{ height: "10%" }} />
+                <View className="fns-stats-row" style={{ height: "60%" }}>
+                    <Icon className="fns-stats-icon" glyph={0xE9F5} />
+                    <View className="fns-stats-track">
+                        <View className="fns-stats-fill" style={{ width: `${clamp(health)}%` }}>
+                            <Gradient from="#02BC23" to="#48E025" width={356} />
+                        </View>
+                    </View>
+                    <Text className="fns-text fns-stats-value" text={String(Math.round(health))} />
+                </View>
+            </View>
+            <View className="fns-stats-armor">
+                <Icon className="fns-stats-armor-icon" glyph={0xE9C1} />
+                <Text className="fns-text fns-stats-armor-value" text={String(armor)} />
+            </View>
+        </View>
     )
 }
 
-export default CharacterStats
+function clamp(n: number): number {
+    return Math.max(0, Math.min(100, n))
+}

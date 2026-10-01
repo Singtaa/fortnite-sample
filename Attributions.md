@@ -1,5 +1,7 @@
 ## Icon font Rpg-Awesome
 
+`assets/@fortnite-sample/rpgawesome.ttf`
+
 BSD-2-Clause license from https://nagoshiashumari.github.io/
 
 Copyright (c) 2014, Daniela Howe All rights reserved.
@@ -14,9 +16,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ## Fortnite Icons
 
-https://fortnite.fandom.com/
+`assets/@fortnite-sample/daggers.png`, `mk7.png`, `drum.png`, `splash.png`: https://fortnite.fandom.com/
+
+## Map
+
+`assets/@fortnite-sample/map.jpg`: a Fortnite island map.
 
 ## Ingame Screenshots
 
-screenie.jpg: taken by me (@Singtaa)
-screenie2.jpg: wallpaperflare.com
+`assets/@fortnite-sample/screenie2.jpg`: wallpaperflare.com
+`docs/fortnite.jpg` (repository only, not in the npm package): an in-game screenshot for comparison.
+
+Fortnite and its art are the property of Epic Games. This sample is not affiliated with or endorsed by Epic Games.
